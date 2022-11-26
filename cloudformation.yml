@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: A sample template
+Metadata:
+  Version: 1.0.1
+
+Parameters:
+  InstanceName:
+    Description: Name of an EC2 instance(s)
+    Type: String
+
+  BucketName:
+    Description: Name of a s3 bucket
+    Type: String
+
+  S3AccessManagedPolicyARN:
+    Description: Managed policy ARN
+    Type: String
+
+Resources:
+  MyEC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: ami-0b0dcb5067f052a63
+      InstanceType: t2.micro
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdm
+          Ebs:
+            VolumeType: io1
+            Iops: 200
+            DeleteOnTermination: false
+            VolumeSize: 22
+      Tags:
+        - Key: "Name"
+          Value: !Ref InstanceName
+      IamInstanceProfile: !Ref MyEc2InstanceProfileRole
+  
+  MyEc2InstanceProfileRole:
+    DependsOn: MyEc2IAMrole
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: 'Ec2InstanceProfileRole'
+      Path: /
+      Roles:
+        - !Ref MyEc2IAMrole
+
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: Enabled
+
+  MyEc2IAMrole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - !Ref S3AccessManagedPolicyARN
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: ec2:*
+                Resource: '*'
+
+
+Outputs:
+  InstanceID:
+    Description: The Instance ID
+    Value: !Ref MyEC2Instance
+
+  BucketName:
+    Description: The name of the s3 bucket
+    Value: !Ref BucketName
