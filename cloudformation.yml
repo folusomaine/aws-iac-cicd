@@ -12,9 +12,9 @@ Parameters:
     Description: Name of a s3 bucket
     Type: String
 
-  S3AccessManagedPolicyARN:
-    Description: Managed policy ARN
-    Type: String
+  # S3AccessManagedPolicyARN:
+  #   Description: Managed policy ARN
+  #   Type: String
 
 Resources:
   MyEC2Instance:
@@ -28,7 +28,7 @@ Resources:
             VolumeType: io1
             Iops: 200
             DeleteOnTermination: false
-            VolumeSize: 22
+            VolumeSize: 20
       Tags:
         - Key: "Name"
           Value: !Ref InstanceName
