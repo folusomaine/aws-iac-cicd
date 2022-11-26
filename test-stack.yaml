@@ -14,7 +14,7 @@ Parameters:
     Type: String
     
 Resources:
-  TekLoonTestInstance:
+  CicdTestInstance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !FindInMap
@@ -38,3 +38,7 @@ Resources:
         FromPort: 443
         IpProtocol: tcp
         ToPort: 443
+      - CidrIp: 0.0.0.0/0
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
