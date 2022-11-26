@@ -32,16 +32,16 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Ref InstanceName
-      IamInstanceProfile: !Ref MyEc2InstanceProfileRole
+  #     IamInstanceProfile: !Ref MyEc2InstanceProfileRole
   
-  MyEc2InstanceProfileRole:
-    DependsOn: MyEc2IAMrole
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      InstanceProfileName: 'Ec2InstanceProfileRole'
-      Path: /
-      Roles:
-        - !Ref MyEc2IAMrole
+  # MyEc2InstanceProfileRole:
+  #   DependsOn: MyEc2IAMrole
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties:
+  #     InstanceProfileName: 'Ec2InstanceProfileRole'
+  #     Path: /
+  #     Roles:
+  #       - !Ref MyEc2IAMrole
 
   MyS3Bucket:
     Type: AWS::S3::Bucket
@@ -50,29 +50,29 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
 
-  MyEc2IAMrole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - ec2.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: /
-      ManagedPolicyArns:
-        - !Ref S3AccessManagedPolicyARN
-      Policies:
-        - PolicyName: root
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action: ec2:*
-                Resource: '*'
+  # MyEc2IAMrole:
+  #   Type: 'AWS::IAM::Role'
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service:
+  #               - ec2.amazonaws.com
+  #           Action:
+  #             - 'sts:AssumeRole'
+  #     Path: /
+  #     ManagedPolicyArns:
+  #       - !Ref S3AccessManagedPolicyARN
+  #     Policies:
+  #       - PolicyName: root
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Effect: Allow
+  #               Action: ec2:*
+  #               Resource: '*'
 
 
 Outputs:
