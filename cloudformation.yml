@@ -48,7 +48,7 @@ Resources:
     Properties:
       BucketName: !Ref BucketName
       VersioningConfiguration:
-        Status: Disabled
+        Status: Enabled
 
   MyEc2IAMrole:
     Type: 'AWS::IAM::Role'
