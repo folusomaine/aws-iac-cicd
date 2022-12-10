@@ -107,12 +107,12 @@ Resources:
         - CidrIp: 0.0.0.0
           Description: "ssh"
           FromPort: 22
-          # IpProtocol: -1
+          IpProtocol: -1
           ToPort: 22
         - CidrIp: 0.0.0.0
           Description: "http"
           FromPort: 80
-          # IpProtocol: -1
+          IpProtocol: -1
           ToPort: 80
       VpcId: !Ref TaskOneVpc
 
@@ -125,12 +125,12 @@ Resources:
         - CidrIp: 0.0.0.0
           Description: "ssh"
           FromPort: 22
-          # IpProtocol: -1
+          IpProtocol: -1
           ToPort: 22
         - CidrIp: 0.0.0.0
           Description: "http"
           FromPort: 80
-          # IpProtocol: -1
+          IpProtocol: -1
           ToPort: 80
       VpcId: !Ref TaskOneVpc
 
