@@ -52,6 +52,6 @@ jobs:
       - name: Deploy task-one stack to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: task-one-stack
+          name: task-one-stack-v1
           template: task-one.yaml
           no-fail-on-empty-changeset: "1"
