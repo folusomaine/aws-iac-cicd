@@ -67,7 +67,7 @@ Resources:
       InstanceType: t2.micro
       SubnetId: !Ref PublicSubnet
       SecurityGroups:
-        - !Ref PublicInstanceSecurityGroup
+        - !GetAtt PublicInstanceSecurityGroup.GroupId
       BlockDeviceMappings:
         - DeviceName: /dev/sdm
           Ebs:
@@ -86,7 +86,7 @@ Resources:
       InstanceType: t2.micro
       SubnetId: !Ref PrivateSubnet
       SecurityGroups:
-        - !Ref PrivateInstanceSecurityGroup
+        - !GetAtt PublicInstanceSecurityGroup.GroupId
       BlockDeviceMappings:
         - DeviceName: /dev/sdm
           Ebs:
@@ -102,7 +102,6 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: "public instance ingress"
-      GroupName: public instance sg
       SecurityGroupIngress: 
         - CidrIp: 0.0.0.0/0
           Description: "ssh"
@@ -120,7 +119,6 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: "private instance ingress"
-      GroupName: "private instance sg"
       SecurityGroupIngress: 
         - CidrIp: 0.0.0.0/0
           Description: "ssh"
