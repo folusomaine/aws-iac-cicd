@@ -142,7 +142,7 @@ Resources:
   PublicNaclAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties: 
-      NetworkAclId: !!Ref myNetworkAcl
+      NetworkAclId: !Ref myNetworkAcl
       SubnetId: !Ref PublicSubnet
 
   myNetworkAcl:
