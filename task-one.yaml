@@ -117,22 +117,22 @@ Resources:
       VpcId: !Ref TaskOneVpc
 
   PrivateInstanceSecurityGroup:
-  Type: AWS::EC2::SecurityGroup
-  Properties: 
-    GroupDescription: "private instance ingress"
-    GroupName: "private instance sg"
-    SecurityGroupIngress: 
-      - CidrIp: 0.0.0.0
-        Description: "ssh"
-        FromPort: 22
-        # IpProtocol: -1
-        ToPort: 22
-      - CidrIp: 0.0.0.0
-        Description: "http"
-        FromPort: 80
-        # IpProtocol: -1
-        ToPort: 80
-    VpcId: !Ref TaskOneVpc
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: "private instance ingress"
+      GroupName: "private instance sg"
+      SecurityGroupIngress: 
+        - CidrIp: 0.0.0.0
+          Description: "ssh"
+          FromPort: 22
+          # IpProtocol: -1
+          ToPort: 22
+        - CidrIp: 0.0.0.0
+          Description: "http"
+          FromPort: 80
+          # IpProtocol: -1
+          ToPort: 80
+      VpcId: !Ref TaskOneVpc
 
   PrivateNaclAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
