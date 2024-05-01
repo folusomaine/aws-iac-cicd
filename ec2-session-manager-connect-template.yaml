@@ -1,0 +1,165 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: A sample template for ec2 ssm session manager configuration - just attach ssm* instance role to ec2
+Metadata:
+  Version: 1.0.0
+
+Parameters:
+  Ec2ImageID:
+    Description: Valid AMI ID
+    Type: String
+
+Resources:
+  # VPC
+  QuarantineVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 172.16.1.0/24
+      Tags:
+        - Key: Name
+          Value: QuarantineVPC
+
+  PrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}a"
+      CidrBlock: 172.16.1.0/26
+      Tags:
+        - Key: Name
+          Value: private-subnet
+      VpcId: !Ref QuarantineVPC
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Sub "${AWS::Region}b"
+      CidrBlock: 172.16.1.64/26
+      Tags:
+        - Key: Name
+          Value: public-subnet
+      VpcId: !Ref QuarantineVPC
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "QuarantineVPC-IGW"
+
+  VPCGatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref QuarantineVPC
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "public-route-table"
+      VpcId: !Ref QuarantineVPC
+
+  PublicRouteToInternet:
+    Type: AWS::EC2::Route
+    DependsOn: VPCGatewayToInternet
+    Properties:
+       RouteTableId: !Ref PublicRouteTable
+       DestinationCidrBlock: 0.0.0.0/0
+       GatewayId: !Ref InternetGateway
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet
+
+  SecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "private and public instance sg"
+      GroupName: "ec2-ingress"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: "https"
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      VpcId: !Ref QuarantineVPC
+
+  PrivateNaclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref VPCNetworkAcl
+      SubnetId: !Ref PrivateSubnet
+  PublicNaclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref VPCNetworkAcl
+      SubnetId: !Ref PublicSubnet
+
+  VPCNetworkAcl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref QuarantineVPC
+      Tags:
+      - Key: "Name"
+        Value: "private-public-subnet-nacl"
+
+  # NACL
+  EphemeralPortsInboundRule:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+       NetworkAclId: !Ref VPCNetworkAcl
+       RuleNumber: 200
+       Protocol: 6
+       RuleAction: allow
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: 1024
+         To: 65535
+
+  HTTPInboundRule:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+       NetworkAclId: !Ref VPCNetworkAcl
+       RuleNumber: 100
+       Protocol: 6
+       RuleAction: allow
+       CidrBlock: 0.0.0.0/0
+       PortRange:
+         From: 443
+         To: 443
+
+  OutboundRule:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+       NetworkAclId: !Ref VPCNetworkAcl
+       RuleNumber: 100
+       Protocol: -1
+       Egress: true
+       RuleAction: allow
+       CidrBlock: 0.0.0.0/0
+
+  # EC2
+  PublicInstance:
+    DependsOn: VPCGatewayToInternet
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref Ec2ImageID
+      InstanceType: t2.micro
+      BlockDeviceMappings:
+        - DeviceName: /dev/sdm
+          Ebs:
+            VolumeType: io1
+            Iops: 200
+            DeleteOnTermination: true
+            VolumeSize: 20
+      Tags:
+        - Key: "Name"
+          Value: "public-instance"
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - !GetAtt SecurityGroupIngress.GroupId
+          SubnetId: !Ref PublicSubnet
